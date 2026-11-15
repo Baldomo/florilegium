@@ -6,8 +6,8 @@
 std = "lua53"
 include_files = { "florilegium*.lua", "build.lua", "docs/*.lua", "tools/*.lua", "testfiles/support/*.lua" }
 
--- what LuaTeX provides
-read_globals = { "tex", "texio", "node", "token", "kpse", "luatexbase", "fonts", "md5" }
+-- what LuaTeX provides, and ConTeXt (context, resolvers), whose file lookup stands in for kpse there
+read_globals = { "tex", "texio", "node", "token", "kpse", "luatexbase", "fonts", "md5", "context", "resolvers" }
 
 -- Every primitive takes the arguments its frame asks for (rng, s, o), and a motif row's
 -- draw, a figure's draw and a theme's replacements take the same ones as the others,
