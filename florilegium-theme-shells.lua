@@ -23,7 +23,7 @@ local SPC = require("florilegium-species")
 local SHL = require("florilegium-shell")
 require("florilegium-native")         -- what the shells are drawn with, loaded now so its version is checked
 local M = {}
-M.version = "2.0.1"                 -- the release; florilegium.lua checks that every file has the same
+M.version = "2.1.0"                 -- the release; florilegium.lua checks that every file has the same
 
 local sin, cos, sqrt, pi, floor, ceil, max, min, abs, log, exp =
   math.sin, math.cos, math.sqrt, math.pi, math.floor, math.ceil, math.max, math.min, math.abs, math.log, math.exp

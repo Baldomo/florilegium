@@ -139,17 +139,17 @@ and in total darkness.
 
 | one strip of three plants, 21 cm tall | time | PDF |
 |---|---|---|
-| pdfLaTeX, pure TikZ | 91 s | 1.3 MB |
-| LuaLaTeX, pure TikZ (`engine=tikz`) | 96 s | 1.3 MB |
-| LuaLaTeX, Lua engine (the default) | 0.8 s | 0.5 MB |
+| pdfLaTeX, pure TikZ | 107 s | 1.5 MB |
+| LuaLaTeX, pure TikZ (`engine=tikz`) | 118 s | 1.5 MB |
+| LuaLaTeX, Lua engine (the default) | 0.9 s | 0.6 MB |
 
-*`tools/bench-tikz.tex`, timed by `make bench` on 2026-11-03 (Intel Core i9-13900K, TeX Live
+*`tools/bench-tikz.tex`, timed by `make bench` on 2026-11-17 (Intel Core i9-13900K, TeX Live
 2023).*
 
 ## pdfLaTeX's memory
 
 pdfTeX keeps a page's drawing in its main memory until the page is shipped out. A strip of
-plants in this much detail needs about 6.3 million words of it, more than the 5 million pdfTeX
+plants in this much detail needs about 7.3 million words of it, more than the 5 million pdfTeX
 has by default, and a full page of the specimen sheet about 12.5 million. TeX Live reads a
 larger size from the environment at run time, with no format to rebuild:
 
