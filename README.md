@@ -188,7 +188,7 @@ are TikZ pics.
 
 The species don't need Lua. Under pdfLaTeX, `\usetikzlibrary{florilegium}` samples each plant,
 visitor, window of tracery and shell from its genome, grows it and paints it with pgfmath and TikZ
-alone, and each of the strips above is one `\pic`. It takes a minute and a half for a strip of three plants 21 cm
+alone, and each of the strips above is one `\pic`. It takes nearly two minutes for a strip of three plants 21 cm
 tall, and pdfTeX needs more memory than it has by default. Under LuaLaTeX, the same pics are drawn by
 florilegium's Lua in under a second, within a fraction of a point of pure TikZ's drawing. Only
 the margin itself, laid out around a page's text, is the package's and needs LuaLaTeX.
@@ -253,7 +253,9 @@ the projects it started from.
 
 To build on florilegium from another tool, call `florilegium-svg.lua`. Its command line and the
 options of its `page` function are what stays put from one release to the next, and they draw
-the garden LuaLaTeX draws ([SVG, Typst and the browser](docs/svg-and-web.md)). The other files,
+the garden LuaLaTeX draws ([SVG, Typst and the browser](docs/svg-and-web.md)). A module for another
+TeX format can rely on `ink.backend`, `florilegium.sync_transform`, `florilegium.page_marks` and
+`florilegium.captions` in the same way. The other files,
 and the functions inside them, may be renamed or rewritten in any release, as 1.3 renamed every
 module; each release's notes list the files it renamed or removed. Pin a port to a release tag.
 
@@ -283,23 +285,26 @@ those plants bring.*
 | math theme | both | **procedural**, packed into the free space | figures computed from their mathematics, and TeX's equations | Lua and TeX (LuaLaTeX) |
 | ornaments and initials | both | set in the text; an initial's vine grown round its letter | hand-designed kinds | Lua (LuaLaTeX) |
 | TikZ pics (`\usetikzlibrary{florilegium}`) | 2.0 | **procedural**, each pic grows its own plants | **procedural** species from genomes | pure TikZ (pdfLaTeX or LuaLaTeX), or Lua (LuaLaTeX's default) |
+| headpieces, and the tracery pic | 2.1 | set over a heading, or a pic; the margin's branch grown to its vine | **procedural** windows of Gothic tracery from a genome | Lua (LuaLaTeX); the pic also in pure TikZ |
+| shells on the ground, and the shell pic | 2.1 | laid on the margin's ground beside the root, or a pic | **procedural** shells from genomes | Lua (LuaLaTeX); the pic also in pure TikZ |
+| shells theme | 2.1 | **procedural**, packed along the wrack | **procedural** shells from genomes, among hand-designed wrack | Lua (LuaLaTeX) |
 | SVG without TeX, and the playground | both | as that release's margin | as that release's margin | any Lua 5.3 or 5.4, a browser |
 | PostScript (`postscript/florilegium.ps`) | both | **procedural**, grown | hand-designed kinds (1.3's garden) | PostScript |
 
 A species page draws about 1.7 times as much as a 1.3 page, and takes a little under twice as
 long:
 
-| | 1.3 | 2.0 |
+| | 1.3 | 2.1 |
 |---|---|---|
 | ten pages of text, no margin (LuaLaTeX) | 0.4 s, 33 KB | 0.4 s, 33 KB |
-| the same ten pages with the grown margin (LuaLaTeX) | 7.1 s, 6.3 MB | 12.3 s, 10.5 MB |
-| what the margin adds to a page | 0.68 s, 0.63 MB | 1.19 s, 1.0 MB |
-| one TikZ strip of three plants, pdfLaTeX, pure TikZ | not in 1.3 | 91 s, 1.3 MB (6.3 million words of TeX's memory) |
-| the same strip, LuaLaTeX, pure TikZ (`engine=tikz`) | not in 1.3 | 96 s, 1.3 MB |
-| the same strip, LuaLaTeX, Lua engine (the default) | not in 1.3 | 0.8 s, 0.5 MB |
+| the same ten pages with the grown margin (LuaLaTeX) | 7.2 s, 6.3 MB | 12.5 s, 10.4 MB |
+| what the margin adds to a page | 0.68 s, 0.63 MB | 1.21 s, 1.0 MB |
+| one TikZ strip of three plants, pdfLaTeX, pure TikZ | not in 1.3 | 107 s, 1.5 MB (7.3 million words of TeX's memory) |
+| the same strip, LuaLaTeX, pure TikZ (`engine=tikz`) | not in 1.3 | 118 s, 1.5 MB |
+| the same strip, LuaLaTeX, Lua engine (the default) | not in 1.3 | 0.9 s, 0.6 MB |
 
 *`tools/bench.tex` (seed 7, the last page short) and `tools/bench-tikz.tex`, timed on
-2026-11-03 on an Intel Core i9-13900K with LuaHBTeX 1.17.0 (TeX Live 2023), each time the
+2026-11-17 on an Intel Core i9-13900K with LuaHBTeX 1.17.0 (TeX Live 2023), each time the
 median of three runs (pure TikZ: one run). What the margin adds is the difference from the same
 text without one (option `nomargin`), per page. `make bench` measures every row again.*
 
