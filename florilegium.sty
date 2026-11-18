@@ -188,18 +188,24 @@
 %% tagged PDF (\DocumentMetadata{tagging=on}): what is drawn in the text is decoration
 %% (\florilegium@artifact) unless it is given a structure of its own (\florilegium@tagged,
 %% its first argument the structure's keys: an ornament with alt or actualtext). The margin
-%% needs neither, since LaTeX marks what the shipout hook draws as decoration. A kernel
-%% without the tagging commands (TeX Live 2023 without \DocumentMetadata) draws as before
+%% needs neither, since LaTeX marks what the shipout hook draws as decoration.
+%% \florilegium@iftagging asks the kernel whether tagging is on, and not paused, here; the
+%% tagging commands exist whenever a document has \DocumentMetadata, tagging on or off. TeX
+%% Live 2023 without \DocumentMetadata has no \tag_if_active: either, and draws as before.
+%% An artifact group marks its contents as decoration and pauses tagging inside, so a
+%% headpiece's paragraph makes no empty paragraph in the structure.
 \ExplSyntaxOn
+\cs_new_protected:Npn \florilegium@iftagging #1#2
+  { \cs_if_exist:NTF \tag_if_active:TF { \tag_if_active:TF { #1 } { #2 } } { #2 } }
 \cs_new_protected:Npn \florilegium@artifact #1
   {
-    \cs_if_exist:NTF \tag_mc_end_push:
-      { \tag_mc_end_push: \tag_mc_begin:n { artifact } #1 \tag_mc_end: \tag_mc_begin_pop:n { } }
+    \florilegium@iftagging
+      { \tag_mc_artifact_group_begin:n { } #1 \tag_mc_artifact_group_end: }
       { #1 }
   }
 \cs_new_protected:Npn \florilegium@tagged #1#2
   {
-    \cs_if_exist:NTF \tag_mc_end_push:
+    \florilegium@iftagging
       {
         \tag_mc_end_push: \tag_struct_begin:n { #1 } \tag_mc_begin:n { }
         #2
@@ -207,9 +213,6 @@
       }
       { #2 }
   }
-%% a paragraph that is all decoration (a headpiece) makes no structure
-\cs_new_protected:Npn \florilegium@untagged #1
-  { \cs_if_exist:NTF \tag_stop: { \tag_stop: #1 \tag_start: } { #1 } }
 \ExplSyntaxOff
 
 %% one primitive in the text, in a box the size of a letter (florilegium.lua):
@@ -259,10 +262,10 @@
   \pgfqkeys{/florilegium/headpiece}{#1}%
   \flo@hp@width=\flo@hp@w\relax
   \florilegium@colors
-  \florilegium@untagged{\noindent\florilegium@artifact{\hbox to\flo@hp@width{\def\flo@hp@height{0pt}\directlua{florilegium.headpiece("\luaescapestring{\flo@hp@seed}",
+  \florilegium@artifact{\noindent\hbox to\flo@hp@width{\def\flo@hp@height{0pt}\directlua{florilegium.headpiece("\luaescapestring{\flo@hp@seed}",
       "\luaescapestring{\flo@hp@role}", \number\flo@hp@width, "\luaescapestring{\flo@hp@traits}",
       "\luaescapestring{\flo@hp@vine}", \ifflorilegium@margin true\else false\fi)}%
-    \hss\vrule height \flo@hp@height depth 0pt width 0pt}}\par}%
+    \hss\vrule height \flo@hp@height depth 0pt width 0pt}\par}%
   \endgroup}
 \ifflorilegium@headpieces
   % \@startsection knows the level; \@sect and \@ssect (starred) set the title after
