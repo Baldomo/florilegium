@@ -198,6 +198,8 @@ jobs:
         with:
           root_file: tools/tagging-ci.sh
           compiler: sh
+          # latex-action passes its args to the compiler, and its default ones are latexmk's
+          args: -e
 
   # The PostScript port (postscript/florilegium.ps) through Ghostscript, about 40 runs in a few
   # seconds: the pages postscript/expected.txt records, every spelling of an option, the clock
