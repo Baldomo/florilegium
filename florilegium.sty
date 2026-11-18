@@ -64,6 +64,7 @@
 %%                                      one primitive in the text, sized like a letter
 %%                                      (default 1em); each one in a document differs,
 %%                                      seed=random gives a new shape on every build
+%%                                      (a tagged PDF: alt={...} or actualtext={...})
 %%   \florilegiumdraw{flower}{1.2}      any primitive at the origin of the current TikZ
 %%                                      scope; see florilegium-flora.lua for the list and options,
 %%                                      e.g. \florilegiumdraw{leaf}{2.0, {depth=0.6}};
@@ -184,23 +185,60 @@
 %% one primitive inside a tikzpicture, under the current transformation
 \newcommand\florilegiumdraw[2]{\florilegium@colors\directlua{florilegium.draw("#1", #2)}}
 
+%% tagged PDF (\DocumentMetadata{tagging=on}): what is drawn in the text is decoration
+%% (\florilegium@artifact) unless it is given a structure of its own (\florilegium@tagged,
+%% its first argument the structure's keys: an ornament with alt or actualtext). The margin
+%% needs neither, since LaTeX marks what the shipout hook draws as decoration. A kernel
+%% without the tagging commands (TeX Live 2023 without \DocumentMetadata) draws as before
+\ExplSyntaxOn
+\cs_new_protected:Npn \florilegium@artifact #1
+  {
+    \cs_if_exist:NTF \tag_mc_end_push:
+      { \tag_mc_end_push: \tag_mc_begin:n { artifact } #1 \tag_mc_end: \tag_mc_begin_pop:n { } }
+      { #1 }
+  }
+\cs_new_protected:Npn \florilegium@tagged #1#2
+  {
+    \cs_if_exist:NTF \tag_mc_end_push:
+      {
+        \tag_mc_end_push: \tag_struct_begin:n { #1 } \tag_mc_begin:n { }
+        #2
+        \tag_mc_end: \tag_struct_end: \tag_mc_begin_pop:n { }
+      }
+      { #2 }
+  }
+%% a paragraph that is all decoration (a headpiece) makes no structure
+\cs_new_protected:Npn \florilegium@untagged #1
+  { \cs_if_exist:NTF \tag_stop: { \tag_stop: #1 \tag_start: } { #1 } }
+\ExplSyntaxOff
+
 %% one primitive in the text, in a box the size of a letter (florilegium.lua):
-%% \florilegiumornament{leaf}, \florilegiumornament[size=2em,ink=5B2A1F,angle=20,seed=random]{flower}
+%% \florilegiumornament{leaf}, \florilegiumornament[size=2em,ink=5B2A1F,angle=20,seed=random]{flower}.
+%% In a tagged PDF it is decoration, a figure with alt={an ivy leaf}, or a span that reads
+%% as text with actualtext={*} (alt wins when both are given)
 \newdimen\flo@orn@size
 \pgfqkeys{/florilegium/ornament}{
   size/.store in=\flo@orn@sz, size=1em,
   ink/.store in=\flo@orn@ink, ink=,
   accent/.store in=\flo@orn@acc, accent=,
   angle/.store in=\flo@orn@angle, angle=0,
-  seed/.store in=\flo@orn@seed, seed=}
+  seed/.store in=\flo@orn@seed, seed=,
+  alt/.store in=\flo@orn@alt, alt=,
+  actualtext/.store in=\flo@orn@text, actualtext=}
 \newcommand\florilegiumornament[2][]{\leavevmode\begingroup
   \pgfqkeys{/florilegium/ornament}{#1}%
   \flo@orn@size=\flo@orn@sz\relax
   \florilegium@colors
-  \hbox to\flo@orn@size{\directlua{florilegium.ornament("\luaescapestring{#2}", \number\flo@orn@size,
+  \def\flo@orn@box{\hbox to\flo@orn@size{\directlua{florilegium.ornament("\luaescapestring{#2}", \number\flo@orn@size,
       "\luaescapestring{\flo@orn@ink}", "\luaescapestring{\flo@orn@acc}",
       florilegium.number("angle", "\luaescapestring{\flo@orn@angle}", 0), "\luaescapestring{\flo@orn@seed}")}%
-    \hss\vrule height .85\flo@orn@size depth .15\flo@orn@size width 0pt}%
+    \hss\vrule height .85\flo@orn@size depth .15\flo@orn@size width 0pt}}%
+  \ifx\flo@orn@alt\@empty
+    \ifx\flo@orn@text\@empty \florilegium@artifact{\flo@orn@box}%
+    \else \florilegium@tagged{tag=Span, actualtext={\flo@orn@text}}{\flo@orn@box}\fi
+  \else
+    \florilegium@tagged{tag=Figure, alt={\flo@orn@alt}}{\flo@orn@box}%
+  \fi
   \endgroup}
 
 %% a headpiece of Gothic tracery across the text (florilegium-tracery.lua), its sill on
@@ -221,10 +259,10 @@
   \pgfqkeys{/florilegium/headpiece}{#1}%
   \flo@hp@width=\flo@hp@w\relax
   \florilegium@colors
-  \noindent\hbox to\flo@hp@width{\def\flo@hp@height{0pt}\directlua{florilegium.headpiece("\luaescapestring{\flo@hp@seed}",
+  \florilegium@untagged{\noindent\florilegium@artifact{\hbox to\flo@hp@width{\def\flo@hp@height{0pt}\directlua{florilegium.headpiece("\luaescapestring{\flo@hp@seed}",
       "\luaescapestring{\flo@hp@role}", \number\flo@hp@width, "\luaescapestring{\flo@hp@traits}",
       "\luaescapestring{\flo@hp@vine}", \ifflorilegium@margin true\else false\fi)}%
-    \hss\vrule height \flo@hp@height depth 0pt width 0pt}\par
+    \hss\vrule height \flo@hp@height depth 0pt width 0pt}}\par}%
   \endgroup}
 \ifflorilegium@headpieces
   % \@startsection knows the level; \@sect and \@ssect (starred) set the title after
@@ -296,7 +334,7 @@
   \global\flo@ini@tile=\dimexpr\baselineskip*\numexpr#1-1\relax+\flo@ini@cap\relax
   \hangindent=\dimexpr\flo@ini@tile+0.6em\relax \hangafter=-#1\relax
   \noindent\florilegium@colors
-  \directlua{florilegium.initial("\luaescapestring{\csname text_purify:n\endcsname{#2}}", \number\flo@ini@tile, \number\hangindent, \number\flo@ini@cap)}%
+  \florilegium@artifact{\directlua{florilegium.initial("\luaescapestring{\csname text_purify:n\endcsname{#2}}", \number\flo@ini@tile, \number\hangindent, \number\flo@ini@cap)}}%
   \llap{\directlua{florilegium.hidden(true)}#2\directlua{florilegium.hidden(false)}}%
   \ignorespaces}
 \newcommand\florilegiuminitialfont[1]{\directlua{florilegium.initial_font = "\luaescapestring{#1}"}}

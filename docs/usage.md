@@ -182,6 +182,21 @@ theme's (`crystal` with `geometric`; `knot`, `polyhedron`, `koch`, ... with `mat
 tracery's (`trefoil`, `quatrefoil`, `cinquefoil`, `sexfoil`, `rose`) and the shells' (`scallop`,
 `ammonite`, `nautilus`, `whelk`, `cowrie`).
 
+## A tagged PDF
+
+LaTeX can tag a PDF (`\DocumentMetadata{tagging=on}`), so that a screen reader knows what each part of the page is. Accessibility standards such as PDF/UA ask for it. In a tagged PDF the package marks what it draws as decoration, which a reader passes over: the margin, the initials' tiles and the headpieces. An initial's letter still reads in its word, "This" and not "his".
+
+An ornament in the text is decoration too, unless it says something. Give it `alt` and it becomes a figure with that description; give it `actualtext` and it is read and copied as that text, for example a section break that stands for `*`. With both, `alt` is used.
+
+```latex
+\DocumentMetadata{lang=en-US, tagging=on}
+...
+\florilegiumornament[alt={an ivy leaf}]{leaf}
+\florilegiumornament[actualtext={*}]{sparkle}
+```
+
+`\florilegiumdraw` and the TikZ library's pics draw inside a TikZ picture, so LaTeX tags them as it tags any TikZ picture. Tagging was checked with TeX Live 2026. TeX Live 2023's tagging is an early test, and there the package marks nothing.
+
 ## Primitives in a TikZ picture
 
 `\florilegiumdraw` draws one of v1.3's primitives inside a TikZ picture, under the current
