@@ -4,7 +4,7 @@
 
 -- LuaTeX runs Lua 5.3 and the playground 5.4: keep to what both have
 std = "lua53"
-include_files = { "florilegium*.lua", "build.lua", "docs/*.lua", "tools/*.lua", "testfiles/support/*.lua" }
+include_files = { "florilegium*.lua", "build.lua", "config-*.lua", "docs/*.lua", "tools/*.lua", "testfiles/support/*.lua" }
 
 -- what LuaTeX provides
 read_globals = { "tex", "texio", "node", "token", "kpse", "luatexbase", "fonts", "md5" }
@@ -23,6 +23,8 @@ local stubs = { "tex", "texio", "node", "luatexbase" }
 files["florilegium-svg.lua"] = { globals = stubs }
 files["tools/*.lua"] = { globals = stubs }
 
--- l3build reads its settings from the globals build.lua sets, which nothing in it reads
+-- l3build reads its settings from the globals build.lua and a config-*.lua set, which
+-- nothing in them reads
 files["build.lua"] = { allow_defined_top = true, ignore = { "131" } }
+files["config-*.lua"] = files["build.lua"]
 

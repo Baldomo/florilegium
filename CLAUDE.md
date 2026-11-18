@@ -100,6 +100,7 @@ tools/in-docker texlua tools/tikzcheck.lua draw quick # the Lua engine's pics re
 tools/versioncheck.sh [v1.3]              # the .sty and every Lua file name one release (and the tag's)
 make luacheck RUN=tools/in-docker         # luacheck over every Lua file (.luacheckrc), as CI's lua job does
 make check RUN=tools/in-docker            # l3build's 11 regression tests (~15 s); after an intended change: tools/in-docker l3build save <test>
+make check-tagging                        # the tagged-PDF test (config-tagging.lua) in latex-action's TeX Live image; TAGGING=save after an intended change
 ```
 
 Fixed seed: `lualatex "\def\florilegiumseed{7}\input{florilegium-grow.tex}"`. Any

@@ -111,6 +111,14 @@ luacheck:
 check:
 	$(RUN) l3build check
 
+# the tagged-PDF test (config-tagging.lua), in the TeX Live image CI's tagging job uses,
+# since TeX Live 2023 can't list a PDF's tags. TAGGING=save saves the list of tags again
+# after an intended change. The image's diff can't make the kind l3build asks for by
+# default, so diffexe asks for unified diffs
+TAGGING ?= check
+check-tagging:
+	docker run --rm -u "$$(id -u):$$(id -g)" -e HOME=/tmp -e TEXMFVAR=/tmp/texmf-var -e TEXMFCACHE=/tmp/texmf-var -e diffexe="diff -u" -v "$$PWD":/work -w /work ghcr.io/xu-cheng/texlive-alpine:latest l3build $(TAGGING) -c config-tagging $(if $(filter save,$(TAGGING)),tagging)
+
 preview: florilegium.pdf florilegium-grow.pdf showcase.pdf spread.pdf specimen-geometric.pdf ornaments.pdf build/geometric.pdf build/math.pdf build/shells.pdf
 	mkdir -p gallery build
 	pdftoppm -png -r 110 -singlefile ornaments.pdf gallery/ornaments
@@ -165,4 +173,4 @@ playground:
 clean:
 	rm -rf build *.aux *.log *.out *.toc *.synctex.gz
 
-.PHONY: all zip gallery animation preview postscript pscheck luacheck check svg bench social playground clean
+.PHONY: all zip gallery animation preview postscript pscheck luacheck check check-tagging svg bench social playground clean

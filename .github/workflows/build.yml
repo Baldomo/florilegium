@@ -179,6 +179,26 @@ jobs:
         if: failure()
         run: cat build/l3build/test/*.diff
 
+  # The tagged-PDF test (issue #48). It builds testfiles-tagging/tagging.lvt as a tagged PDF
+  # and compares the PDF's tags (which parts are decoration, a figure or text) with the list
+  # saved in tagging.tlg. TeX Live 2023 can't list a PDF's tags, so this job runs in
+  # latex-action's newer TeX Live, with tools/tagging-ci.sh as its compiler. The list holds
+  # nothing of the drawing, so a change to how a flower is drawn won't fail this job. A new
+  # LaTeX release can change the tags it writes; then the job fails until the list is saved
+  # again with make check-tagging TAGGING=save.
+  tagging:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: the tags of a tagged document
+        uses: xu-cheng/latex-action@6549dc21effb2730855a1281407ecfcececc6c1b # 4.1.0
+        with:
+          root_file: tools/tagging-ci.sh
+          compiler: sh
+
   # The PostScript port (postscript/florilegium.ps) through Ghostscript, about 40 runs in a few
   # seconds: the pages postscript/expected.txt records, every spelling of an option, the clock
   # seed, the 32-bit limit on seeds, and the PDF and raster devices (postscript/check.sh says
